@@ -1,7 +1,7 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from config import Config
-from flask_login import LoginManager
+from .extensions import db, login_manager
+from .models import User
 from .Blueprints import analyse_bp, integration_bp, presence_bp, reference_bp, index_bp
 import os
 
@@ -11,18 +11,25 @@ app.config.from_pyfile(
     os.path.join(os.path.dirname(app.root_path), 'config_server.py'),
     silent=True)
 
-# Paramétrage de la session
-login = LoginManager(app)
-login.login_view = 'login'
-login.login_message = u"Veuillez vous connecter pour accéder à cette page."
-login.login_message_category = "info"
+# Initialize extensions
+db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = u"Veuillez vous connecter pour accéder à cette page."
+login_manager.login_message_category = "info"
 
-# Créer la connexion à la base de donnée
-db = SQLAlchemy(app)
+# Define user_loader function
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-# Enregistrer les blueprints
+# Register blueprints
 app.register_blueprint(index_bp)
 app.register_blueprint(analyse_bp, url_prefix='/analyse')
 app.register_blueprint(integration_bp, url_prefix='/integration')
 app.register_blueprint(presence_bp, url_prefix='/presence')
 app.register_blueprint(reference_bp, url_prefix='/reference')
+
+# Create the database
+with app.app_context():
+    db.create_all()

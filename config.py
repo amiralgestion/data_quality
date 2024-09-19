@@ -11,7 +11,7 @@ Connection à la base de donnée
 class Config(object):
     ID = os.getenv("ID")
     PASSWORD = os.getenv("PASSWORD")
-    SERVER = os.getenv("SERVER")
+    SERVER = os.getenv("SERVER") #192.168.5.15
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = 'mysql://{id}:{password}@{server}/Amiral_data?charset=utf8mb4'.format(
         id=ID, password=parse.quote(PASSWORD), server=SERVER)
