@@ -29,13 +29,13 @@ window.toggleExpand = function(element) {
 
       // Déterminer l'animation d'expansion en fonction de la position de la boîte
       if ($element.index() === 0) { // En haut à gauche
-          $element.animate({height: "816px", width: "1536px"}, 300, 'linear');
+          $element.animate({height: "835px", width: "1536px"}, 300, 'linear');
       } else if ($element.index() === 1) { // En haut à droite
-          $element.animate({height: "816px", width: "1536px", left: "-784px", }, 300, 'linear');
+          $element.animate({height: "835px", width: "1536px", left: "-784px", }, 300, 'linear');
       } else if ($element.index() === 2) { // En bas à gauche
-          $element.animate({height: "816px", width: "1536px", top: "-416px"}, 300, 'linear');
+          $element.animate({height: "835px", width: "1536px", top: "-432px"}, 300, 'linear');
       } else if ($element.index() === 3) { // En bas à droite
-          $element.animate({height: "816px", width: "1536px", left: "-784px", top: "-430px"}, 300, 'linear');
+          $element.animate({height: "835px", width: "1536px", left: "-784px", top: "-430px"}, 300, 'linear');
       }
 
       $element.addClass('expanded');
