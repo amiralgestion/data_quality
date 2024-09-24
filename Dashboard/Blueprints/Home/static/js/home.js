@@ -65,10 +65,10 @@ $(document).ready(function() {
     window.refreshBox = function(element) {
         const $icon = $(element);
         const $box = $icon.closest('div');
-        $icon.removeClass('fa-sharp fa-solid fa-arrows-rotate').addClass('spin fa-solid fa-spinner-third');
+        $icon.addClass('spin');
         
         setTimeout(function() {
-            $icon.removeClass('spin fa-solid fa-spinner-third').addClass('fa-sharp fa-solid fa-arrows-rotate');
+            $icon.removeClass('spin');
             
             if ($box.find('.integration').length) {
                 // Informations de test

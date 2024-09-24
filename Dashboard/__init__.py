@@ -1,9 +1,15 @@
-from flask import Flask, redirect, url_for
+import logging
+from flask import Flask, redirect, url_for, request, jsonify
 from config import Config
 from .extensions import db, login_manager
 from .models import User
 from .Blueprints import analyse_bp, integration_bp, presence_bp, reference_bp, home_bp
 import os
+from datetime import datetime
+
+# Configurer les logs
+logging.basicConfig(level=logging.INFO, format='%(message)s', handlers=[logging.StreamHandler()])
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -30,11 +36,28 @@ app.register_blueprint(integration_bp, url_prefix='/integration')
 app.register_blueprint(presence_bp, url_prefix='/presence')
 app.register_blueprint(reference_bp, url_prefix='/reference')
 
+# Logger les informations de la requête
+@app.after_request
+def log_response_info(response):
+    blueprint = request.blueprint if request.blueprint else "No Blueprint"
+    method = request.method
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    log_entry = (
+        f"🕒 Timestamp: {timestamp}\n"
+        f"🌐 Remote Address: {request.remote_addr}\n"
+        f"📄 Request: \"{request.method} {request.path} {request.scheme}/{request.environ.get('SERVER_PROTOCOL')}\"\n"
+        f"📊 Status Code: {response.status_code}\n"
+        f"📂 Path: {request.path}\n"
+        f"🛤️ Route: {request.endpoint}\n"
+        f"🌐 URL: {request.url}\n"
+        f"🔖 Blueprint: {blueprint}\n"
+        f"🔍 Method: {method}\n"
+        "----------------------------------------"
+    )
+    logger.info(log_entry)
+    return response
+
 # Rediriger vers la page d'accueil
 @app.route('/')
 def home():
     return redirect(url_for('home.home'))
-
-# Créer la base de données
-with app.app_context():
-    db.create_all()
