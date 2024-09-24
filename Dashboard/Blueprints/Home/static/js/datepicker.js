@@ -1,4 +1,15 @@
 $(document).ready(function() {
+
+    // appliquer le style not-allowed au curseur
+    const style = document.createElement('style');
+    style.textContent = `
+        .cursor-not-allowed {
+            cursor: not-allowed;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Sélection des éléments du DOM
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     const calendar = document.getElementById('calendar');
@@ -19,25 +30,27 @@ $(document).ready(function() {
     // Variables pour stocker les dates sélectionnées et l'état actuel
     let currentDate = new Date();
     let selectedStartDate = null;
-    let selectedEndDate = null;
+    let selectedEndDate = new Date();
     let activeInput = null;
     let isSelectingRange = false;
+    let selectionForbidden = false;
 
-    // Fonction pour afficher le calendrier
+    // Fonction pour rendre le calendrier
     function renderCalendar(date) {
         const year = date.getFullYear();
         const month = date.getMonth();
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
-
+        const today = new Date();
+    
         monthYear.textContent = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-
+    
         daysContainer.innerHTML = '';
         // Ajouter des divs vides pour les jours avant le début du mois
         for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
             daysContainer.innerHTML += '<div></div>';
         }
-
+    
         // Ajouter les jours du mois
         for (let day = 1; day <= lastDate; day++) {
             const dayElement = document.createElement('div');
@@ -46,21 +59,31 @@ $(document).ready(function() {
             dayElement.classList.add('p-2', 'cursor-pointer', 'hover:bg-gray-700', 'rounded');
             if (selectedStartDate && currentDay < selectedStartDate) {
                 dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            } else if (selectedEndDate && currentDay > selectedEndDate) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            } else if (selectionForbidden || currentDay > today) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
                 dayElement.addEventListener('click', () => selectDate(currentDay));
             }
             daysContainer.appendChild(dayElement);
         }
-
+    
         highlightSelectedDates();
+        highlightDefaultEndDate();
     }
+    
 
     // Fonction pour sélectionner une date
     function selectDate(date) {
+        const today = new Date();
+        if (selectionForbidden || date > today) return; // Si la sélection est interdite ou si la date est future, ne rien faire
+    
         if (isSelectingRange) {
             if (date >= selectedStartDate) {
                 selectedEndDate = date;
                 isSelectingRange = false;
+                forbidSelection();
             }
         } else {
             if (activeInput === startDateInput) {
@@ -70,6 +93,7 @@ $(document).ready(function() {
             } else if (activeInput === endDateInput) {
                 if (date >= selectedStartDate) {
                     selectedEndDate = date;
+                    forbidSelection();
                 }
             } else {
                 if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
@@ -77,13 +101,13 @@ $(document).ready(function() {
                     selectedEndDate = null;
                 } else {
                     selectedEndDate = date;
+                    forbidSelection();
                 }
             }
         }
         updateDatepickerInput();
         highlightSelectedDates();
     }
-
     // Fonction pour mettre à jour les champs de saisie des dates
     function updateDatepickerInput() {
         if (selectedStartDate) {
@@ -101,16 +125,60 @@ $(document).ready(function() {
     // Fonction pour mettre en évidence les dates sélectionnées dans le calendrier
     function highlightSelectedDates() {
         const dayElements = daysContainer.querySelectorAll('div');
+        const today = new Date();
         dayElements.forEach(dayElement => {
             const day = parseInt(dayElement.textContent);
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-            dayElement.classList.remove('bg-[#364056]', 'rounded-l-full', 'rounded-r-full', 'bg-blue-600', 'bg-blue-600', 'text-white');
+            dayElement.classList.remove('bg-[#364056]', 'rounded-l-full', 'rounded-r-full', 'bg-blue-600', 'bg-blue-800', 'text-white', 'opacity-50', 'cursor-not-allowed');
             if (selectedStartDate && date.getTime() === selectedStartDate.getTime()) {
                 dayElement.classList.add('bg-blue-800', 'text-white', 'rounded-l-full');
             } else if (selectedEndDate && date.getTime() === selectedEndDate.getTime()) {
                 dayElement.classList.add('bg-blue-800', 'text-white', 'rounded-r-full');
             } else if (selectedStartDate && selectedEndDate && date >= selectedStartDate && date <= selectedEndDate) {
                 dayElement.classList.add('bg-blue-600', 'text-white');
+            } else if (selectedStartDate && date < selectedStartDate) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            } else if (selectedEndDate && date > selectedEndDate) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            // Appliquer l'effet "not-allowed" pour les dates futures
+            if (date > today) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            // Appliquer l'effet de date inaccessible
+            if (inaccessibleDates.some(d => d.getTime() === date.getTime())) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    
+        // Mettre en évidence la date d'aujourd'hui si aucune date n'est sélectionnée
+        if (!selectedStartDate && !selectedEndDate) {
+            const todayElement = Array.from(dayElements).find(dayElement => {
+                const day = parseInt(dayElement.textContent);
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                return date.getTime() === today.getTime();
+            });
+            if (todayElement) {
+                todayElement.classList.add('bg-blue-800', 'text-white', 'rounded-r-full');
+            }
+        }
+    }
+
+    // Fonction pour mettre en évidence la date de fin par défaut
+    function highlightDefaultEndDate() {
+        const dayElements = daysContainer.querySelectorAll('div');
+        const today = new Date();
+        dayElements.forEach(dayElement => {
+            const day = parseInt(dayElement.textContent);
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            if (selectedEndDate && date.getTime() === selectedEndDate.getTime()) {
+                dayElement.classList.add('bg-blue-800', 'text-white', 'rounded-r-full');
+            }
+            if (date.getTime() === today.getTime()) {
+                dayElement.classList.add('bg-blue-800', 'text-white', 'rounded-r-full');
+            }
+            if (date > today) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
             }
         });
     }
@@ -118,10 +186,40 @@ $(document).ready(function() {
     // Fonction pour effacer la sélection de dates
     function clearSelection() {
         selectedStartDate = null;
-        selectedEndDate = null;
+        selectedEndDate = null; 
+        selectionForbidden = false;
+        inaccessibleDates = [];
         updateDatepickerInput();
-        highlightSelectedDates();
+        renderCalendar(currentDate);
     }
+
+    let inaccessibleDates = [];
+
+    // Fonction pour interdire la sélection de dates
+    function forbidSelection() {
+        selectionForbidden = true;
+        const dayElements = daysContainer.querySelectorAll('div');
+        const today = new Date();
+        inaccessibleDates = [];
+
+        dayElements.forEach(dayElement => {
+            const day = parseInt(dayElement.textContent);
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            if (selectedStartDate && date < selectedStartDate) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+                inaccessibleDates.push(date);
+            } else if (selectedEndDate && date > selectedEndDate) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+                inaccessibleDates.push(date);
+            } else if (date > today) {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+                inaccessibleDates.push(date);
+            } else {
+                dayElement.classList.add('opacity-50', 'cursor-not-allowed');
+                dayElement.removeEventListener('click', selectDate);
+            }
+        });
+}
 
     // Fonction pour sélectionner la date d'aujourd'hui
     function setToday() {
@@ -129,9 +227,7 @@ $(document).ready(function() {
         const now = new Date();
         selectedStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         selectedEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        updateDatepickerInput();
-        highlightSelectedDates();
-        highlightButton(todayButton);
+        renderCalendar(now);
     }
 
     // Fonction pour sélectionner la date d'hier
@@ -143,6 +239,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(yesterdayButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner la semaine glissante
@@ -154,6 +251,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(thisWeekButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner le mois glissant
@@ -165,6 +263,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(thisMonthButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner le trimestre glissant
@@ -176,6 +275,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(thisQuarterButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner le semestre glissant
@@ -187,6 +287,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(thisSemesterButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner l'année glissante
@@ -198,6 +299,7 @@ $(document).ready(function() {
         updateDatepickerInput();
         highlightSelectedDates();
         highlightButton(thisYearButton);
+        forbidSelection();
     }
 
     // Fonction pour mettre en évidence le bouton sélectionné
@@ -211,6 +313,7 @@ $(document).ready(function() {
 
     // Événements pour afficher le calendrier lors du clic sur les champs de saisie des dates
     startDateInput.addEventListener('click', () => {
+        selectionForbidden = false;
         activeInput = startDateInput;
         calendar.style.top = `${startDateInput.offsetTop + startDateInput.offsetHeight}px`;
         calendar.style.left = `${startDateInput.offsetLeft}px`;
@@ -219,6 +322,7 @@ $(document).ready(function() {
     });
 
     endDateInput.addEventListener('click', () => {
+        selectionForbidden = false;
         activeInput = endDateInput;
         calendar.style.top = `${endDateInput.offsetTop + endDateInput.offsetHeight}px`;
         calendar.style.left = `${endDateInput.offsetLeft}px`;
@@ -267,4 +371,7 @@ $(document).ready(function() {
 
     // Rendre le calendrier initialement
     renderCalendar(currentDate);
+    updateDatepickerInput();
+    highlightSelectedDates();
+    highlightDefaultEndDate();
 });

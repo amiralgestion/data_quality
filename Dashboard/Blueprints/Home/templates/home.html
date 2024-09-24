@@ -2,27 +2,31 @@
 
 {% block customcss %}
 <style>
-body {
-    overflow: hidden;
-}
+    body {
+        overflow: hidden;
+    }
+    
+    .refresh-icon {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        cursor: pointer;
+        color: #25C8A8;
+        font-size: 1.5em;
+    }
+    
+    .refresh-icon.spin {
+        animation: spin 1s linear infinite;
+    }
 
-.refresh-icon {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    cursor: pointer;
-    color: #25C8A8;
-    font-size: 1.5em;
-}
-
-.refresh-icon.spin {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .grid > div {
+        transition: all 0.1s linear;
+    }
 </style>
 {% endblock %}
 
@@ -51,67 +55,67 @@ body {
     
 
     <!-- Grid Container -->
-    <div class="grid grid-cols-2 gap-8 mb-10">
-        <!-- Intégration -->
-        <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
-            <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] integration" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
-                CONTRÔLE D’INTÉGRATION
-            </span>
-            <i class="fa-duotone fa-solid fa-spinner-third refresh-icon" onclick="refreshBox(this)"></i>
-            <span class="absolute top-16 left-8 text-white font-medium" style="font-family: 'Poppins', sans-serif;">
-                <span id="totalFiles" style="font-size: 48px;">6291</span>
-                <span style="font-size: 14px;">fichiers</span>
-            </span>
-            <!-- Fichiers intégrés avec succès -->
-            <div class="absolute top-40 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-                <span class="w-64">Fichiers intégrés avec succès</span>
-                <span id="successCount" class="text-white w-16  ml-[-14px] text-right">3775</span>
-                <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
-                    <div id="successBar" class="bg-[#388E3C] h-2.5 rounded-full" style="width: 60%;"></div>
-                </div>
+<div class="grid grid-cols-2 gap-8 mb-10">
+    <!-- Intégration -->
+    <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
+        <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer integration" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+            CONTRÔLE D’INTÉGRATION
+        </span>
+        <i class="fa-sharp fa-solid fa-arrows-rotate refresh-icon" onclick="refreshBox(this)"></i>
+        <span class="absolute top-16 left-8 text-white font-medium" style="font-family: 'Poppins', sans-serif;">
+            <span id="totalFiles" style="font-size: 48px;">6291</span>
+            <span style="font-size: 14px;">fichiers</span>
+        </span>
+        <!-- Fichiers intégrés avec succès -->
+        <div class="absolute top-40 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <span class="w-64">Fichiers intégrés avec succès</span>
+            <span id="successCount" class="text-white w-16  ml-[-14px] text-right">3775</span>
+            <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
+                <div id="successBar" class="bg-[#388E3C] h-2.5 rounded-full" style="width: 60%;"></div>
             </div>
-            <!-- Erreur à l'intégration -->
-            <div class="absolute top-52 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-                <span class="w-64">Erreur à l'intégration</span>
-                <span id="errorCount" class="text-white w-16 ml-[-14px] text-right">2013</span>
-                <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
-                    <div id="errorBar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 32%;background-color: #F57C00;"></div>
-                </div>
+        </div>
+        <!-- Erreur à l'intégration -->
+        <div class="absolute top-52 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <span class="w-64">Erreur à l'intégration</span>
+            <span id="errorCount" class="text-white w-16 ml-[-14px] text-right">2013</span>
+            <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
+                <div id="errorBar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 32%;background-color: #F57C00;"></div>
             </div>
-            <!-- Intégration impossible -->
-            <div class="absolute top-64 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-                <span class="w-64">Intégration impossible</span>
-                <span id="impossibleCount" class="text-white w-16  ml-[-14px] text-right">503</span>
-                <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
-                    <div id="impossibleBar" class="bg-red-600 h-2.5 rounded-full" style="width: 8%;background-color: #D32F2F"></div>
-                </div>
+        </div>
+        <!-- Intégration impossible -->
+        <div class="absolute top-64 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <span class="w-64">Intégration impossible</span>
+            <span id="impossibleCount" class="text-white w-16  ml-[-14px] text-right">503</span>
+            <div class="w-24 ml-4 bg-[#2B2E3C] rounded-full h-2.5">
+                <div id="impossibleBar" class="bg-red-600 h-2.5 rounded-full" style="width: 8%;background-color: #D32F2F"></div>
             </div>
-            <!-- Highcharts Container -->
-            <div id="integrationChart" class="absolute top-24 right-8 w-[250px] h-[250px]"></div>
         </div>
-        
-        <!-- Présence -->
-        <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
-            <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] presence" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
-                CONTRÔLE DE PRÉSENCE
-            </span>
-            <i class="fa-duotone fa-solid fa-spinner-third refresh-icon" onclick="refreshBox(this)"></i>
-        </div>
-        <!-- Référence -->
-        <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
-            <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] reference" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
-                CONTRÔLE DE RÉFÉRENCE
-            </span>
-            <i class="fa-duotone fa-solid fa-spinner-third refresh-icon" onclick="refreshBox(this)"></i>
-        </div>
-        <!-- Analyse -->
-        <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
-            <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] analyse" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
-                CONTRÔLE D'ANALYSE
-            </span>
-            <i class="fa-duotone fa-solid fa-spinner-third refresh-icon" onclick="refreshBox(this)"></i>
-        </div>
+        <!-- Highcharts Container -->
+        <div id="integrationChart" class="absolute top-24 right-8 w-[250px] h-[250px]"></div>
     </div>
+    
+    <!-- Présence -->
+    <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
+        <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer presence" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+            CONTRÔLE DE PRÉSENCE
+        </span>
+        <i class="fa-sharp fa-solid fa-arrows-rotate refresh-icon" onclick="refreshBox(this)"></i>
+    </div>
+    <!-- Référence -->
+    <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
+        <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer reference" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+            CONTRÔLE DE RÉFÉRENCE
+        </span>
+        <i class="fa-sharp fa-solid fa-arrows-rotate refresh-icon" onclick="refreshBox(this)"></i>
+    </div>
+    <!-- Analyse -->
+    <div class="h-[400px] bg-[#364056] rounded-lg shadow-lg relative transition-all duration-400 ease-in-out">
+        <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer analyse" style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+            CONTRÔLE D'ANALYSE
+        </span>
+        <i class="fa-sharp fa-solid fa-arrows-rotate refresh-icon" onclick="refreshBox(this)"></i>
+    </div>
+</div>
 </div>
 {% endblock %}
 
