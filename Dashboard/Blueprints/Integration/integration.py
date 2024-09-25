@@ -5,3 +5,7 @@ integration_bp = Blueprint('integration', __name__, template_folder='templates',
 @integration_bp.route('/')
 def integration():
     return "Hello from integration blueprint"
+
+@integration_bp.route('/content')
+def load_content():
+    return render_template('integration.html')

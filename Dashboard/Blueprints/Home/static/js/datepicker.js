@@ -219,7 +219,7 @@ $(document).ready(function() {
                 dayElement.removeEventListener('click', selectDate);
             }
         });
-}
+    }
 
     // Fonction pour sélectionner la date d'aujourd'hui
     function setToday() {
@@ -227,7 +227,10 @@ $(document).ready(function() {
         const now = new Date();
         selectedStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         selectedEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        renderCalendar(now);
+        updateDatepickerInput();
+        highlightSelectedDates();
+        highlightButton(todayButton);
+        forbidSelection();
     }
 
     // Fonction pour sélectionner la date d'hier
