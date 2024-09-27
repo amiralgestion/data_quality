@@ -5,3 +5,7 @@ presence_bp = Blueprint('presence', __name__, template_folder='templates', stati
 @presence_bp.route('/')
 def presence():
     return "Hello from presence blueprint"
+
+@presence_bp.route('/content')
+def load_content():
+    return render_template('presence.html')

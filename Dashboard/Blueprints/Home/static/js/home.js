@@ -1,94 +1,53 @@
 $(document).ready(function() {
-    let isAnimating = false; // Flag pour vérifier si une animation est en cours
 
-    // Expand la boîte cliquée
-    window.toggleExpand = function(element) {
-        if (isAnimating) return;
-
-        const $element = $(element).parent();
-        const isExpanded = $element.hasClass('expanded');
-        const $allBoxes = $('.grid > div');
-
-        isAnimating = true;
-
-        if (isExpanded) {
-            $element.removeClass('expanded');
-            if ($element.index() === 0) { // En haut à gauche
-                $element.animate({height: "400px", width: "752px"}, 300, 'linear', function() {
-                    $allBoxes.css('visibility', 'visible');
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 1) { // En haut à droite
-                $element.animate({height: "400px", width: "752px", left: "0"}, 300, 'linear', function() {
-                    $allBoxes.css('visibility', 'visible');
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 2) { // En bas à gauche
-                $element.animate({height: "400px", width: "752px", top: "0"}, 300, 'linear', function() {
-                    $allBoxes.css('visibility', 'visible');
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 3) { // En bas à droite
-                $element.animate({height: "400px", width: "752px", top: "0", left: "0"}, 300, 'linear', function() {
-                    $allBoxes.css('visibility', 'visible');
-                    isAnimating = false;
-                });
-            }
-        } else {
-            $allBoxes.css('visibility', 'hidden');
-            $element.css('visibility', 'visible');
-
-            // Déterminer l'animation d'expansion en fonction de la position de la boîte
-            if ($element.index() === 0) { // En haut à gauche
-                $element.animate({height: "835px", width: "1536px"}, 300, 'linear', function() {
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 1) { // En haut à droite
-                $element.animate({height: "835px", width: "1536px", left: "-784px"}, 300, 'linear', function() {
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 2) { // En bas à gauche
-                $element.animate({height: "835px", width: "1536px", top: "-432px"}, 300, 'linear', function() {
-                    isAnimating = false;
-                });
-            } else if ($element.index() === 3) { // En bas à droite
-                $element.animate({height: "835px", width: "1536px", left: "-784px", top: "-430px"}, 300, 'linear', function() {
-                    isAnimating = false;
-                });
-            }
-
-            $element.addClass('expanded');
-        }
+    // Fonction pour gérer la réponse de succès et mettre à jour les statistiques d'intégration
+    function handleIntegrationSuccess(data) {
+        updateIntegrationStats(data.totalFiles, data.successCount, data.impossibleCount);
     }
 
-    // Fonction pour refresh le contenu d'une boîte
-    window.refreshBox = function(element) {
-        const $icon = $(element);
-        const $box = $icon.closest('div');
-        $icon.addClass('spin');
-        
-        setTimeout(function() {
-            $icon.removeClass('spin');
-            
-            if ($box.find('.integration').length) {
-                // Informations de test
-                const newSuccess = Math.floor(Math.random() * 5000);
-                const newError = Math.floor(Math.random() * 3000);
-                const newImpossible = Math.floor(Math.random() * 1000);
-                updateIntegrationStats(newSuccess, newError, newImpossible);
-            } else if ($box.find('.presence').length) {
-                // Informations de test
-            } else if ($box.find('.reference').length) {
-                // Informations de test
-            } else if ($box.find('.analysis').length) {
-                // Informations de test
+    // Fonction pour gérer la réponse de succès et mettre à jour les statistiques d'intégration étendues
+    function handleExpandedIntegrationSuccess(data) {
+        updateExpandedIntegrationStats(data.totalFiles, data.successCount, data.impossibleCount);
+    }
+
+    // Exposer les fonctions globalement
+    window.handleIntegrationSuccess = handleIntegrationSuccess;
+    window.handleExpandedIntegrationSuccess = handleExpandedIntegrationSuccess;
+
+    let isAnimating = false;
+    let initialContents = {}
+
+    // Fonction pour sauvegarder le contenu initial de la boîte
+    function saveInitialBoxContent(container_name) {
+        const $container = $(`#${container_name}`);
+        initialContents[container_name] = $container.html();
+        return initialContents[container_name];
+    }
+
+    // Fonction pour masquer tous les éléments de la boîte sauf ceux avec la classe 'keep-visible'
+    function hideBoxElements(container_name) {
+        const $container = $(`#${container_name}`);
+        $container.children().not('.keep-visible').hide();
+    }
+
+    // Fonction pour charger le contenu du blueprint
+    function loadBlueprintContent(container_name) {
+        const $container = $(`#${container_name}`);
+        $.ajax({
+            url: `/${container_name}/content`,
+            method: 'GET',
+            success: function(data) {
+                $container.append(data);
+            },
+            error: function() {
+                alert('Échec du chargement du contenu');
             }
-        }, 1000);
+        });
     }
 
     // Fonction pour mettre à jour les statistiques d'intégration
-    function updateIntegrationStats(success, error, impossible) {
-        const total = success + error + impossible;
+    function updateIntegrationStats(total, success, impossible) {
+        const error = total - success - impossible;
         const totalFilesElement = document.getElementById('totalFiles');
         const successCountElement = document.getElementById('successCount');
         const errorCountElement = document.getElementById('errorCount');
@@ -96,22 +55,21 @@ $(document).ready(function() {
         const successBarElement = document.getElementById('successBar');
         const errorBarElement = document.getElementById('errorBar');
         const impossibleBarElement = document.getElementById('impossibleBar');
-
+    
         if (totalFilesElement && successCountElement && errorCountElement && impossibleCountElement && successBarElement && errorBarElement && impossibleBarElement) {
             totalFilesElement.innerText = total;
-
-            const successPercentage = (success / total) * 100;
-            const errorPercentage = (error / total) * 100;
-            const impossiblePercentage = (impossible / total) * 100;
-
             successCountElement.innerText = success;
             errorCountElement.innerText = error;
             impossibleCountElement.innerText = impossible;
-
+    
+            const successPercentage = (success / total) * 100;
+            const errorPercentage = (error / total) * 100;
+            const impossiblePercentage = (impossible / total) * 100;
+    
             successBarElement.style.width = successPercentage + '%';
             errorBarElement.style.width = errorPercentage + '%';
             impossibleBarElement.style.width = impossiblePercentage + '%';
-
+    
             Highcharts.chart('integrationChart', {
                 chart: {
                     type: 'pie',
@@ -164,6 +122,145 @@ $(document).ready(function() {
         }
     }
 
-    // Exemple avant d'implémenter le backend
-    updateIntegrationStats(3775, 2013, 503);
+    // Fonction pour basculer l'expansion de la boîte cliquée
+    window.toggleExpand = function(element) {
+        if (isAnimating) return;
+    
+        const $element = $(element).parent();
+        const container_name = $element.attr('id');
+        const isExpanded = $element.hasClass('expanded');
+        const $allBoxes = $('.grid > div');
+    
+        isAnimating = true;
+    
+        if (isExpanded) {
+            // Collapse the box
+            $element.removeClass('expanded');
+            $element.html(initialContents[container_name]);
+            animateBox($element, $allBoxes, false);
+            
+            refreshBox($element);
+        } else {
+            saveInitialBoxContent(container_name);
+            hideBoxElements(container_name);
+    
+            $allBoxes.css('visibility', 'hidden');
+            $element.css('visibility', 'visible');
+    
+            animateBox($element, $allBoxes, true, container_name);
+            updateExpandedBoxData(container_name);
+    
+            $element.addClass('expanded');
+        }
+    }
+    
+
+    // Fonction pour mettre à jour les données de la boîte étendue
+    function updateExpandedBoxData(container_name) {
+        const startDate = formatDate($('#startDate').val(), true);
+        const endDate = formatDate($('#endDate').val(), false);
+
+        if (!startDate || !endDate) {
+            alert('Date de début ou de fin manquante');
+            return;
+        }
+        if (container_name === 'integration') {
+            $.ajax({
+                url: '/integration/data',
+                method: 'GET',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                success: function(data) {
+                    handleExpandedIntegrationSuccess(data);
+                },
+                error: function() {
+                    alert('Échec de la mise à jour des données');
+                }
+            });
+        }
+    }
+
+    // Fonction pour animer la boîte
+    function animateBox($element, $allBoxes, expand, container_name) {
+        const animationProps = expand ? getExpandProps($element.index()) : getCollapseProps($element.index());
+        $element.animate(animationProps, 300, 'linear', function() {
+            if (expand) {
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+                loadBlueprintContent(container_name, startDate, endDate);
+            } else {
+                $allBoxes.css('visibility', 'visible');
+            }
+            isAnimating = false;
+        });
+    }
+
+    // Fonction pour obtenir les propriétés d'animation d'expansion
+    function getExpandProps(index) {
+        switch (index) {
+            case 0: return {height: "835px", width: "1536px"};
+            case 1: return {height: "835px", width: "1536px", left: "-784px"};
+            case 2: return {height: "835px", width: "1536px", top: "-435px"};
+            case 3: return {height: "835px", width: "1536px", top: "-435px", left: "-784px"};
+        }
+    }
+
+    // Fonction pour obtenir les propriétés d'animation de réduction
+    function getCollapseProps(index) {
+        switch (index) {
+            case 0: return {height: "400px", width: "752px"};
+            case 1: return {height: "400px", width: "752px", left: "0"};
+            case 2: return {height: "400px", width: "752px", top: "0"};
+            case 3: return {height: "400px", width: "752px", top: "0", left: "0"};
+        }
+    }
+
+    // Fonction pour formater la date
+    function formatDate(dateStr, isStartDate) {
+        const [day, month, year] = dateStr.split('/');
+        const formattedDate = `${year}-${month}-${day} ${isStartDate ? '00:00:00' : '23:59:59'}`;
+        return formattedDate;
+    }
+
+    // Fonction pour rafraîchir le contenu d'une boîte
+    window.refreshBox = function(element) {
+        const $icon = $(element);
+        const $box = $icon.closest('div');
+        $icon.addClass('spin');
+        setTimeout(function() {
+            $icon.removeClass('spin');
+            
+            const startDate = formatDate($('#startDate').val(), true);
+            const endDate = formatDate($('#endDate').val(), false);
+    
+            if (!startDate || !endDate) {
+                alert('Date de début ou de fin manquante');
+                return;
+            }
+    
+            if ($box.find('.integration').length) {
+                $.ajax({
+                    url: '/integration/data',
+                    method: 'GET',
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate
+                    },
+                    success: function(data) {
+                        handleIntegrationSuccess(data);
+                        handleExpandedIntegrationSuccess(data);
+                    },
+                    error: function() {
+                        alert('Échec de la mise à jour des données');
+                    }
+                });
+            }
+        }, 600);
+    }
+    
+
+    window.handleIntegrationSuccess = handleIntegrationSuccess;
+
 });

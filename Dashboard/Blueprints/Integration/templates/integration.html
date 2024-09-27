@@ -1,0 +1,44 @@
+<div class="w-full mt-5 relative">
+    <!-- Total Files Section -->
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 text-white font-bold" style="font-family: 'Poppins', sans-serif;">
+        <span id="totalFilesExp" class="text-6xl"></span>
+        <span class="text-xl">fichiers</span>
+    </div>
+
+    <!-- Log Messages Section -->
+    <div class="mt-8">
+        <!-- Intégration impossible -->
+        <div class="absolute top-40 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2"></i>
+            <span class="w-64 text-[#D32F2F] font-semibold">Intégration impossible</span>
+            <span id="impossibleCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        </div>
+        <!-- Erreur à l'intégration -->
+        <div class="absolute top-52 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer -rotate-90 mr-2"></i>
+            <span class="w-64 text-[#F57C00] font-semibold">Erreur à l'intégration</span>
+            <span id="errorCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        </div>
+
+        <!-- Fichiers intégrés avec succès -->
+        <div class="absolute top-64 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer -rotate-90 mr-2"></i>
+            <span class="w-64 text-[#388E3C] font-semibold">Fichiers intégrés avec succès</span>
+            <span id="successCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rotate-0 {
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+
+.rotate-90 {
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease;
+}
+
+</style>
+<script type="text/javascript" src="{{ url_for('integration.static', filename='js/integration.js') }}"></script>
