@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+    
     // Fonction pour gérer la réponse de succès et mettre à jour les statistiques d'intégration
     function handleIntegrationSuccess(data) {
         updateIntegrationStats(data.totalFiles, data.successCount, data.impossibleCount);
@@ -127,6 +128,7 @@ $(document).ready(function() {
         if (isAnimating) return;
     
         const $element = $(element).parent();
+        console.log($element);
         const container_name = $element.attr('id');
         const isExpanded = $element.hasClass('expanded');
         const $allBoxes = $('.grid > div');

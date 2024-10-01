@@ -1,44 +1,101 @@
-<div class="w-full mt-5 relative">
-    <!-- Total Files Section -->
-    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 text-white font-bold" style="font-family: 'Poppins', sans-serif;">
-        <span id="totalFilesExp" class="text-6xl"></span>
-        <span class="text-xl">fichiers</span>
-    </div>
+<span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer select-none integration z-10"
+style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+CONTRÔLE D’INTÉGRATION
+</span>
 
-    <!-- Log Messages Section -->
-    <div class="mt-8">
+
+<div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white font-bold font-poppins">
+    <span id="totalFilesExp" class="text-6xl"></span>
+    <span class="text-xl">fichiers</span>
+</div>
+
+
+<div class="w-full mt-5 relative flex justify-start items-start" style="height: 80vh;">
+    <div class="log-messages mt-8 ml-8 w-full max-w-4xl">
         <!-- Intégration impossible -->
-        <div class="absolute top-40 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2"></i>
-            <span class="w-64 text-[#D32F2F] font-semibold">Intégration impossible</span>
-            <span id="impossibleCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        <div class="flex items-center text-gray-400 mt-12 font-poppins">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="impossible" onClick="handleCaretClick(this)"></i>
+            <span class="w-64 text-[#D32F2F] text-xl font-semibold">Intégration impossible</span>
+            <span id="impossibleCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
         </div>
+        <!-- Hidden section for more info (Intégration impossible) -->
+        <div class="ml-12 hidden mt-4" id="impossibleDetails" data-id="impossible">
+            <div class="flex items-center">
+                <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="impossibleFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
+                <span class="w-64 text-white font-semibold">Fiches Eval</span>
+            </div>
+            <!-- Impossible files list -->
+            <div id="impossibleFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+                <!-- File rows will be inserted here -->
+            </div>
+        </div>
+
         <!-- Erreur à l'intégration -->
-        <div class="absolute top-52 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer -rotate-90 mr-2"></i>
-            <span class="w-64 text-[#F57C00] font-semibold">Erreur à l'intégration</span>
-            <span id="errorCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        <div class="flex items-center text-gray-400 mt-12 font-poppins">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="error" onClick="handleCaretClick(this)"></i>
+            <span class="w-64 text-[#F57C00] text-xl font-semibold">Erreur à l'intégration</span>
+            <span id="errorCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
+        </div>
+        <!-- Hidden section for more info (Erreur à l'intégration) -->
+        <div class="ml-12 hidden mt-4" id="errorDetails" data-id="error">
+            <div class="flex items-center">
+                <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="errorFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
+                <span class="w-64 text-white font-semibold">Fiches Eval</span>
+            </div>
+            <!-- Error files list -->
+            <div id="errorFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+                <!-- File rows will be inserted here -->
+            </div>
         </div>
 
         <!-- Fichiers intégrés avec succès -->
-        <div class="absolute top-64 left-12 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
-            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer -rotate-90 mr-2"></i>
-            <span class="w-64 text-[#388E3C] font-semibold">Fichiers intégrés avec succès</span>
-            <span id="successCountExp" class="text-white w-16 ml-[-14px] text-right"></span>
+        <div class="flex items-center text-gray-400 mt-12 font-poppins">
+            <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="success" onClick="handleCaretClick(this)"></i>
+            <span class="w-64 text-[#388E3C] text-xl whitespace-nowrap font-semibold">Fichiers intégrés avec succès</span>
+            <span id="successCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
+        </div>
+        <!-- Hidden section for more info (Fichiers intégrés avec succès) -->
+        <div class="ml-12 hidden mt-4" id="successDetails" data-id="success">
+            <div class="flex items-center">
+                <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="successFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
+                <span class="w-64 text-white font-semibold">Fiches Eval</span>
+            </div>
+            <!-- Success files list -->
+            <div id="successFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+                <!-- File rows will be inserted here -->
+            </div>
+        </div>
+    </div>
+  <!-- Modal -->
+<div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center hidden" id="fileDetailsModal">
+    <div class="bg-[#2B2E3C] rounded-lg shadow-lg p-6 flex flex-col justify-between" style="width: 660px; height: 500px;">
+        <div class="flex justify-between items-center border-b border-[#364056] pb-3">
+            <h2 id="modalTitle" class="text-2xl font-bold text-white"></h2>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-200 text-2xl">&times;</button>
+        </div>
+        <div class="mt-4 text-gray-300 overflow-y-auto flex-grow">
+            <div id="fileDetailsContent"></div>
         </div>
     </div>
 </div>
+</div>
 
 <style>
-    .rotate-0 {
-    transform: rotate(0deg);
-    transition: transform 0.3s ease;
+.keep-scrolling {
+    width: 400px; /* Adjust this value as needed */
+    height: 200px;
+    overflow-y: scroll;
+    white-space: nowrap;
 }
 
-.rotate-90 {
-    transform: rotate(-90deg);
-    transition: transform 0.3s ease;
-}
+    .keep-scrolling::-webkit-scrollbar {
+        display: none;
+    }
 
+    .keep-scrolling {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
 </style>
+
 <script type="text/javascript" src="{{ url_for('integration.static', filename='js/integration.js') }}"></script>

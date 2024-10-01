@@ -12,6 +12,10 @@
 		<link rel="shortcut icon" href="{{ url_for('home.static', filename='img/logo_2021.png') }}">
 
     <!-- Tailwind CSS -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.7/css/dataTables.dataTables.css" />
+   
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet">
     
@@ -22,7 +26,7 @@
     {% block customjs %}{% endblock %}
 </head>
 
-<body class="min-h-screen flex items-center justify-center" style="background-color: rgba(43, 46, 60, 1);">
+<body class="min-h-screen flex items-center justify-center" style="background-color: #2B2E3C;">
     <div class="container mx-auto">
         {% block content %}
         <!-- Content will be injected here -->
