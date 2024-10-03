@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, send_file
 import os
 from ..utils import request_db
-import logging  # Importer le module de journalisation
+import logging
+from urllib.parse import unquote
 
 # Créer un Blueprint pour l'intégration
 integration_bp = Blueprint('integration', __name__, template_folder='templates', static_folder='static')
@@ -14,11 +15,9 @@ def load_content():
 # Route pour récupérer les données d'intégration
 @integration_bp.route('/data', methods=['GET'])
 def fetch_data():
-    # Récupérer les paramètres de requête startDate et endDate
     start_date = request.args.get('startDate')
     end_date = request.args.get('endDate')
     
-    # Valider la présence des deux dates
     if not start_date or not end_date:
         return jsonify({'error': 'Missing startDate or endDate'}), 400
 
@@ -58,14 +57,13 @@ def fetch_data():
     except Exception as e:
         logging.error(f"Erreur lors de l'exécution de la requête : {e}")
         return jsonify({'error': str(e)}), 500
-    
+
+# Route pour récupérer les fichiers d'intégration
 @integration_bp.route('/files', methods=['GET'])
 def fetch_files():
-    # Récupérer les paramètres de requête startDate et endDate
     start_date = request.args.get('startDate')
     end_date = request.args.get('endDate')
     
-    # Valider la présence des deux dates
     if not start_date or not end_date:
         return jsonify({'error': 'Missing startDate or endDate'}), 400
 
@@ -97,7 +95,6 @@ def fetch_files():
         success_files = []
         error_files = []
 
-        # Traiter les résultats
         for row in rows:
             filename = os.path.basename(row.chemin)
             if row.reussite == 0:
@@ -115,12 +112,13 @@ def fetch_files():
         return jsonify({
             'impossibleFiles': impossible_files,
             'successFiles': success_files,
-            'errorFiles': error_files  # Placeholder for error count
+            'errorFiles': error_files
         })
     except Exception as e:
         logging.error(f"Erreur lors de l'exécution de la requête : {e}")
         return jsonify({'error': str(e)}), 500
-    
+
+# Route pour récupérer les détails d'un fichier
 @integration_bp.route('/file-details', methods=['GET'])
 def fetch_file_details():
     file_name = request.args.get('fileName')
@@ -164,8 +162,49 @@ def fetch_file_details():
             'gerants': gerants,
             'ticker': row.ticker,
             'etat': row.etat,
-            'commentaire': row.commentaire
+            'commentaire': row.commentaire,
+            'chemin' : row.chemin,
+            'societe': row.societe,
         })
     except Exception as e:
         logging.error(f"Erreur lors de l'exécution de la requête : {e}")
         return jsonify({'error': str(e)}), 500
+
+# Fonction pour get le directory des partages
+def find_partages_directory():
+    current_dir = os.getcwd()
+    while current_dir != '/':
+        potential_partages = os.path.join(current_dir, 'Partages')
+        if os.path.exists(potential_partages) and os.path.isdir(potential_partages):
+            return potential_partages
+        current_dir = os.path.dirname(current_dir)
+    return None
+
+# Route pour télécharger un fichier
+@integration_bp.route('/download-file', methods=['GET'])
+def download_file():
+    file_path = request.args.get('filePath')
+
+    if not file_path:
+        return jsonify({'error': 'Missing filePath'}), 400
+
+    partages_base_path = find_partages_directory()
+    if not partages_base_path:
+        return jsonify({'error': 'Partages directory not found'}), 500
+
+    # Normaliser le chemin du fichier
+    if file_path.startswith('P:/'):
+        file_path = file_path[3:]  # Enlever le 'P:/' du chemin
+        full_path = os.path.join(partages_base_path, file_path)
+    elif file_path.startswith('/Partages/'):
+        full_path = os.path.join(partages_base_path, file_path.lstrip('/Partages/'))
+    else:
+        return jsonify({'error': 'Invalid file path format'}), 400
+
+    absolute_path = os.path.abspath(full_path)
+    if not os.path.exists(absolute_path):
+        print("File not found at path: ", absolute_path)
+        return jsonify({'error': 'File not found'}), 404
+
+    file_name = os.path.basename(file_path)
+    return send_file(absolute_path, as_attachment=True, download_name=file_name)

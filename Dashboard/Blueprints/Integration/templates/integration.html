@@ -3,13 +3,13 @@ style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
 CONTRÔLE D’INTÉGRATION
 </span>
 
-
+<!-- Nombres de fichiers -->
 <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white font-bold font-poppins">
     <span id="totalFilesExp" class="text-6xl"></span>
     <span class="text-xl">fichiers</span>
 </div>
 
-
+<!-- Full page -->
 <div class="w-full mt-5 relative flex justify-start items-start" style="height: 80vh;">
     <div class="log-messages mt-8 ml-8 w-full max-w-4xl">
         <!-- Intégration impossible -->
@@ -18,7 +18,7 @@ CONTRÔLE D’INTÉGRATION
             <span class="w-64 text-[#D32F2F] text-xl font-semibold">Intégration impossible</span>
             <span id="impossibleCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
         </div>
-        <!-- Hidden section for more info (Intégration impossible) -->
+        <!-- Section enfant -->
         <div class="ml-12 hidden mt-4" id="impossibleDetails" data-id="impossible">
             <div class="flex items-center">
                 <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="impossibleFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
@@ -36,7 +36,7 @@ CONTRÔLE D’INTÉGRATION
             <span class="w-64 text-[#F57C00] text-xl font-semibold">Erreur à l'intégration</span>
             <span id="errorCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
         </div>
-        <!-- Hidden section for more info (Erreur à l'intégration) -->
+        <!-- Section enfant -->
         <div class="ml-12 hidden mt-4" id="errorDetails" data-id="error">
             <div class="flex items-center">
                 <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="errorFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
@@ -54,7 +54,7 @@ CONTRÔLE D’INTÉGRATION
             <span class="w-64 text-[#388E3C] text-xl whitespace-nowrap font-semibold">Fichiers intégrés avec succès</span>
             <span id="successCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
         </div>
-        <!-- Hidden section for more info (Fichiers intégrés avec succès) -->
+        <!-- Section enfant -->
         <div class="ml-12 hidden mt-4" id="successDetails" data-id="success">
             <div class="flex items-center">
                 <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 fiches-eval-caret" data-id="successFilesList" onClick="handleFichesEvalCaretClick(this)"></i>
@@ -66,36 +66,61 @@ CONTRÔLE D’INTÉGRATION
             </div>
         </div>
     </div>
-  <!-- Modal -->
-<div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center hidden" id="fileDetailsModal">
-    <div class="bg-[#2B2E3C] rounded-lg shadow-lg p-6 flex flex-col justify-between" style="width: 660px; height: 500px;">
-        <div class="flex justify-between items-center border-b border-[#364056] pb-3">
-            <h2 id="modalTitle" class="text-2xl font-bold text-white"></h2>
-            <button id="closeModal" class="text-gray-400 hover:text-gray-200 text-2xl">&times;</button>
-        </div>
-        <div class="mt-4 text-gray-300 overflow-y-auto flex-grow">
-            <div id="fileDetailsContent"></div>
+
+    <!-- Contenaires de context, highchart et preview-->
+    <div id="contextMenu" class="hidden absolute">
+        <ul class="menu flex flex-col rounded-md shadow-xl overflow-hidden">
+            <li id="previewFile" class="context-menu-item"><i class="fa-sharp fa-solid fa-eye mr-2 text-sky-600"></i>Prévisualiser</li>
+            <li id="downloadFile" class="context-menu-item"><i class="fa-duotone fa-solid fa-file-excel mr-2 text-[#008000]"></i>Télécharger</li>
+        </ul>
+    </div>
+
+    <div id="excelPreviewContainer" class="hidden absolute top-1/4 right-10 w-[600px] h-[400px] overflow-auto">
+        <div id="tableContainer" class="w-full h-full overflow-auto"></div>
+    </div>
+
+    <div id="ExpHighchartContainer" class="absolute top-1/4 right-10 w-[600px] h-[400px]"></div>  
+
+
+    <!-- Modal -->
+    <div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center hidden" id="fileDetailsModal">
+        <div class="bg-[#2B2E3C] rounded-lg shadow-lg p-6 flex flex-col justify-between" style="width: 660px; height: 500px;">
+            <div class="flex justify-between items-center border-b border-[#364056] pb-3">
+                <h2 id="modalTitle" class="text-2xl font-bold text-white"></h2>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-200 text-2xl select-none">&times;</button>
+            </div>
+            <div class="mt-4 text-gray-300 overflow-y-auto flex-grow">
+                <div id="fileDetailsContent"></div>
+            </div>
         </div>
     </div>
+
 </div>
-</div>
+
+<style type="text/tailwindcss">
+    @layer components {
+        .context-menu-item {
+            @apply cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-200 transition-all ease-linear dark:hover:bg-[#364056] p-3 w-auto h-auto text-gray-800 dark:text-gray-200 relative;
+        }
+    }
+</style>
 
 <style>
 .keep-scrolling {
-    width: 400px; /* Adjust this value as needed */
+    width: 400px;
     height: 200px;
     overflow-y: scroll;
     white-space: nowrap;
 }
 
-    .keep-scrolling::-webkit-scrollbar {
-        display: none;
-    }
+.keep-scrolling::-webkit-scrollbar {
+    display: none;
+}
 
-    .keep-scrolling {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
+.keep-scrolling {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 </style>
 
 <script type="text/javascript" src="{{ url_for('integration.static', filename='js/integration.js') }}"></script>

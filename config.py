@@ -22,4 +22,3 @@ class Config(object):
     PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
     MAIN_APP_FOLDER = os.path.join(PROJECT_FOLDER, 'Dashboard')
     APP_JSON_CONFIG = os.path.join(MAIN_APP_FOLDER, 'json_config')
-    PICTURES_FOLDER = os.path.join(MAIN_APP_FOLDER, 'static', 'img', 'Photos')
