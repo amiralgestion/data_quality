@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
   /* Recherche */
   $("#searchBar").on("input", function () {
     const query = $(this).val().toLowerCase();
@@ -9,6 +8,20 @@ $(document).ready(function () {
   /* Fermer la modal */
   $("#closeModal").on("click", function () {
     $("#fileDetailsModal").addClass("hidden");
+  });
+
+  /* Fermer la prévisualisation */
+  $("#closePreviewModal").on("click", function () {
+    const previewContainer = $("#excelPreviewContainer");
+    const modalContainer = $("#excelPreviewModal");
+    const highchartContainer = $("#ExpHighchartContainer");
+
+    previewContainer.addClass("hidden");
+    modalContainer.addClass("hidden");
+    highchartContainer.removeClass("hidden");
+    $("#tableContainer").empty();
+    $("#errorMessage").addClass("hidden");
+    $("#spinner").addClass("hidden");
   });
 
   /* Afficher le menu contextuel  */
@@ -28,6 +41,9 @@ $(document).ready(function () {
     const fileName = $(this).data("fileName");
     fetchFileDetailsAndPreview(fileName);
     hideMenu();
+    $("#excelPreviewModal").removeClass("hidden");
+    $("#excelPreviewContainer").removeClass("hidden");
+    $("#ExpHighchartContainer").addClass("hidden");
   });
 
   /* Télécharger le fichier */
@@ -35,19 +51,6 @@ $(document).ready(function () {
     const fileName = $(this).data("fileName");
     fetchFileDetailsAndDownload(fileName);
     hideMenu();
-  });
-
-  /* Cacher le conteneur de prévisualisation */
-  $(document).on("click", function (e) {
-    const previewContainer = $("#excelPreviewContainer");
-    if (
-      !previewContainer.hasClass("hidden") &&
-      !$(e.target).closest("#excelPreviewContainer").length
-    ) {
-      previewContainer.addClass("hidden");
-      $("#ExpHighchartContainer").removeClass("hidden");
-      $("#tableContainer").empty();
-    }
   });
 });
 
@@ -71,8 +74,9 @@ function fetchFileDetailsAndPreview(fileName) {
   });
 }
 
-/* Afiche un aperçu du fichier Excel */
+/* Récupère et affiche un aperçu du fichier Excel */
 function displayExcelPreview(arrayBuffer) {
+  console.log("Displaying Excel preview...");
   const data = new Uint8Array(arrayBuffer); // Convertir l'ArrayBuffer en Uint8Array
   const workbook = XLSX.read(data, { type: "array" }); // Lire le fichier Excel
 
@@ -82,6 +86,10 @@ function displayExcelPreview(arrayBuffer) {
   );
   if (!compilSheetName) {
     console.error("Sheet 'compil' not found in the workbook.");
+    // Hide the spinner and show the error message
+    $("#spinner").addClass("hidden");
+    $("#errorMessage").removeClass("hidden");
+    $("#excelPreviewContainer").addClass("hidden");
     return;
   }
 
@@ -93,9 +101,21 @@ function displayExcelPreview(arrayBuffer) {
 
   const previewContainer = document.getElementById("excelPreviewContainer");
   const tableContainer = document.getElementById("tableContainer");
+  const modalContainer = document.getElementById("excelPreviewModal");
+  const highchartContainer = document.getElementById("ExpHighchartContainer");
 
-  if (!previewContainer || !tableContainer) {
-    console.error("Preview container or table container not found.");
+  if (
+    !previewContainer ||
+    !tableContainer ||
+    !modalContainer ||
+    !highchartContainer
+  ) {
+    console.error(
+      "Preview container, table container, or modal container not found."
+    );
+    // Hide the spinner in case of error
+    $("#spinner").addClass("hidden");
+    $("#excelPreviewContainer").removeClass("hidden");
     return;
   }
 
@@ -109,26 +129,52 @@ function displayExcelPreview(arrayBuffer) {
     width: "100%",
     height: "100%",
     licenseKey: "non-commercial-and-evaluation",
+    renderAllRows: true, // Ensure all rows are rendered initially
   });
 
-  const max = 26; // Par défaut, pour remplir la table si vide
+  const max_li = 39; // Par défaut, pour remplir les lignes de ta table
+  const max_col = 14; // Par défaut, pour remplir les colonnes de la table
 
-  if (json.length >= max) {
+  const actual_col = hot.countCols();
+
+  // Remplir les lignes de ta table
+  if (json.length >= max_li) {
     hot.loadData(json);
   } else {
-    for (let i = 0; i < max - json.length; i++) {
+    for (let i = 0; i < max_li - json.length; i++) {
       json.push([]);
-      hot.loadData(json);
     }
   }
-  // Afficher le conteneur de prévisualisation
+
+  // Remplir les colonnes de ta table
+  if (actual_col < max_col) {
+    json.forEach((row) => {
+      for (let i = row.length; i < max_col; i++) {
+        row.push("");
+      }
+    });
+  }
+
+  hot.loadData(json);
+
+  // Afficher le conteneur de prévisualisation et cacher le highchart
+  modalContainer.classList.remove("hidden");
   previewContainer.classList.remove("hidden");
-  document.getElementById("ExpHighchartContainer").classList.add("hidden");
+  highchartContainer.classList.add("hidden");
+
+  // Hide the spinner once the preview is ready
+  $("#spinner").addClass("hidden");
+  $("#excelPreviewContainer").removeClass("hidden");
+  $("#errorMessage").addClass("hidden");
 }
 
 /* Affiche les détails du fichier */
 function previewFile(filePath) {
   const fullPath = encodeURIComponent(filePath);
+  // Show the spinner and hide the current table and error message
+  $("#spinner").removeClass("hidden");
+  $("#excelPreviewContainer").addClass("hidden");
+  $("#errorMessage").addClass("hidden");
   $.ajax({
     url: `/integration/download-file?filePath=${fullPath}`,
     method: "GET",
@@ -137,10 +183,13 @@ function previewFile(filePath) {
       responseType: "arraybuffer", // Utiliser un ArrayBuffer pour les fichiers binaires
     },
     success: function (data) {
-      displayExcelPreview(data); // Passr l'ArrayBuffer à la fonction d'affichage
+      displayExcelPreview(data); // Passer l'ArrayBuffer à la fonction d'affichage
     },
     error: function (error) {
       console.error("Error previewing file:", error);
+      // Hide the spinner in case of error
+      $("#spinner").addClass("hidden");
+      $("#excelPreviewContainer").removeClass("hidden");
     },
   });
 }
@@ -173,7 +222,7 @@ function showContextMenu(x, y, fileName) {
   const menuHeight = contextMenu.outerHeight();
 
   let posX = x - 150; //Hardcodée (pour s'approcher du curseur)
-  let posY = y - 85;  //Hardcodée (pour s'approcher du curseur)
+  let posY = y - 85; //Hardcodée (pour s'approcher du curseur)
 
   if (posX + menuWidth > $(window).width()) {
     posX = $(window).width() - menuWidth;
@@ -207,7 +256,7 @@ function downloadFile(fileName) {
       const url = window.URL.createObjectURL(data); // Créer une URL pour le fichier
 
       const disposition = xhr.getResponseHeader("Content-Disposition"); // Récupérer le nom du fichier
-      let downloadFileName = fileName; 
+      let downloadFileName = fileName;
 
       // Extraire le nom du fichier de l'en-tête Content-Disposition
       if (disposition && disposition.indexOf("attachment") !== -1) {
@@ -218,7 +267,6 @@ function downloadFile(fileName) {
           downloadFileName = matches[1].replace(/['"]/g, "");
         }
       }
-
       a.href = url;
       a.download = downloadFileName;
       document.body.appendChild(a);
@@ -239,7 +287,6 @@ function searchFiles(query) {
     "#impossibleFilesList",
     "#errorFilesList",
   ];
-
   fileLists.forEach((listId) => {
     $(listId)
       .children()
@@ -320,7 +367,15 @@ function displayFiles(data) {
     });
     return row;
   }
-
+  if (data.errorFiles.length == 0) {
+    $("#errorFilesList").addClass("hidden");
+  }
+  if (data.impossibleFiles.length == 0) {
+    $("#impossibleFilesList").addClass("hidden");
+  }
+  if (data.successFiles.length == 0) {
+    $("#successFilesList").addClass("hidden");
+  }
   data.impossibleFiles.forEach((file) => {
     $("#impossibleFilesList").append(createFileRow(file));
   });
@@ -334,21 +389,15 @@ function displayFiles(data) {
   });
 }
 
-/* Fonction auxiliaire d'update */
-function handleExpandedIntegrationSuccess(data) {
-  updateExpandedIntegrationStats(
-    data.totalFiles,
-    data.successCount,
-    data.impossibleCount
-  );
-  handleIntegrationSuccess(data);
-}
-
 /* Update de données + highchart */
 function updateExpandedIntegrationStats(total, success, impossible) {
-  const error = total - success - impossible;
-  const errorPercentage = ((error / total) * 100).toFixed(2);
-  const impossiblePercentage = ((impossible / total) * 100).toFixed(2);
+  const total_without_success = total - success;
+  const error = total_without_success - impossible;
+  const errorPercentage = ((error / total_without_success) * 100).toFixed(2);
+  const impossiblePercentage = (
+    (impossible / total_without_success) *
+    100
+  ).toFixed(2);
 
   const colors = Highcharts.getOptions().colors;
   const categories = ["Fiches Eval"];
@@ -439,17 +488,27 @@ function updateExpandedIntegrationStats(total, success, impossible) {
       plotOptions: {
         pie: {
           shadow: false,
-          center: ["75%", "50%"],
+          center: ["65%", "50%"],
           size: "60%",
           dataLabels: {
             allowOverlap: false,
             padding: 5,
             softConnector: true,
+            style: {
+              fontFamily: "'Roboto', sans-serif",
+              fontSize: "14px",
+              fontWeight: "bold",
+              color: "#FFFFFF",
+              textOutline: "#000000",
+            },
           },
         },
       },
       tooltip: {
         valueSuffix: "%",
+        style: {
+          fontFamily: "'Roboto', sans-serif",
+        },
       },
       series: [
         {
@@ -459,18 +518,21 @@ function updateExpandedIntegrationStats(total, success, impossible) {
           dataLabels: {
             crop: false,
             overflow: "none",
-            color: "#ffffff",
             distance: -40,
             allowOverlap: false,
             padding: 5,
             style: {
+              fontFamily: "'Roboto', sans-serif",
+              fontWeight: "bold",
               fontSize: "12px",
+              color: "#FFFFFF",
+              textOutline: "#000000",
             },
             format: "{point.name}",
           },
         },
         {
-          name: `Intégration`,
+          name: "Intégration",
           data: logData,
           size: "80%",
           innerSize: "60%",
@@ -484,7 +546,10 @@ function updateExpandedIntegrationStats(total, success, impossible) {
               value: 1,
             },
             style: {
+              fontFamily: "'Roboto', sans-serif",
               fontWeight: "normal",
+              color: "#FFFFFF",
+              textOutline: "none",
             },
             allowOverlap: false,
             padding: 5,
@@ -513,6 +578,12 @@ function updateExpandedIntegrationStats(total, success, impossible) {
                       property: "percentage",
                       operator: ">",
                       value: 2,
+                    },
+                    style: {
+                      fontFamily: "'Roboto', sans-serif",
+                      fontWeight: "normal",
+                      color: "#FFFFFF",
+                      textOutline: "none",
                     },
                     allowOverlap: false,
                     padding: 5,
@@ -571,15 +642,15 @@ function openModal(fileName) {
         $("#fileDetailsContent").html(`
                     <div class="text-left">
                         <p class="mt-4">
-                            <i class="fas fa-user-tie mr-2" style="color: #4A90E2;"></i>
+                            <i class="fas fa-user-tie mr-2 text-[#4A90E2]"></i>
                             <strong>Gérant/Analyste:</strong> ${gerantsText}
                         </p>
                         <p class="mt-2">
-                            <i class="fas fa-folder-open mr-2" style="color: #FFD700;"></i>
+                            <i class="fas fa-folder-open mr-2 text-[#FFD700]"></i>
                             <strong>Chemin:</strong> ${chemin}
                         </p>
                         <p class="mt-2">
-                            <i class="fa-light fa-tickets-perforated mr-2"></i>
+                            <i class="fa-light fa-tickets-perforated mr-2 text-[#28a745]"></i>
                             <strong>Ticker:</strong> ${ticker}
                         </p>
                         <div class="mt-4 p-4 ${etatColor} rounded-lg flex items-center">

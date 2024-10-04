@@ -1,3 +1,4 @@
+<!-- Title -->
 <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer select-none integration z-10"
 style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
 CONTRÔLE D’INTÉGRATION
@@ -67,27 +68,53 @@ CONTRÔLE D’INTÉGRATION
         </div>
     </div>
 
-    <!-- Contenaires de context, highchart et preview-->
-    <div id="contextMenu" class="hidden absolute">
-        <ul class="menu flex flex-col rounded-md shadow-xl overflow-hidden">
-            <li id="previewFile" class="context-menu-item"><i class="fa-sharp fa-solid fa-eye mr-2 text-sky-600"></i>Prévisualiser</li>
-            <li id="downloadFile" class="context-menu-item"><i class="fa-duotone fa-solid fa-file-excel mr-2 text-[#008000]"></i>Télécharger</li>
-        </ul>
+<!-- Contenaires de context, highchart et preview-->
+<div id="contextMenu" class="hidden absolute">
+    <ul class="menu flex flex-col rounded-md shadow-xl overflow-hidden">
+        <li id="previewFile" class="context-menu-item flex">
+            <div class="icon-section flex flex-col items-center justify-center w-6 mr-2">
+                <i class="fa-sharp fa-solid fa-eye text-sky-600"></i>
+            </div>
+            <div class="text-section flex flex-col justify-center">
+                Prévisualiser
+            </div>
+        </li>
+        <li id="downloadFile" class="context-menu-item flex">
+            <div class="icon-section flex flex-col items-center justify-center w-6 mr-2">
+                <i class="fa-duotone fa-solid fa-file-excel text-[#008000]"></i>
+            </div>
+            <div class="text-section flex flex-col justify-center">
+                Télécharger
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!-- New container for excelPreviewContainer -->
+<div id="excelPreviewModal" class="absolute top-36 right-24 w-[800px] h-[600px] bg-[#2B2E3C] rounded-lg shadow-lg overflow-hidden hidden">
+    <!-- Close icon -->
+    <span id="closePreviewModal" class="absolute top-1 right-2 text-white hover:text-[#AAAAAA] cursor-pointer text-2xl z-20">&times;</span>
+    <!-- Spinner -->
+    <div id="spinner" class="absolute inset-0 flex items-center justify-center hidden">
+        <i class="fa-sharp fa-solid fa-spinner-third text-[#25C8A8] text-6xl animate-spin"></i>
     </div>
-
-    <div id="excelPreviewContainer" class="hidden absolute top-1/4 right-10 w-[600px] h-[400px] overflow-auto">
-        <div id="tableContainer" class="w-full h-full overflow-auto"></div>
+    <!-- Error message -->
+    <div id="errorMessage" class="absolute inset-0 flex flex-col items-center justify-center hidden">
+        <i class="fa-solid fa-face-disappointed text-[#FFCC4D] text-6xl"></i>
+        <span class="text-[#AAAAAA] font-bold text-[20px] mt-4" style="font-family: 'Poppins', sans-serif;">Pas d'onglet compil</span>
     </div>
+    <div id="excelPreviewContainer" class="absolute top-12 left-2 right-2 bottom-2 w-auto h-auto overflow-auto z-10">
+        <div id="tableContainer" class="w-full h-full overflow-auto rounded-lg"></div>
+    </div>
+</div>
 
-    <div id="ExpHighchartContainer" class="absolute top-1/4 right-10 w-[600px] h-[400px]"></div>  
-
-
+<div id="ExpHighchartContainer" class="absolute top-32 right-56 w-[800px] h-[600px]"></div>    
     <!-- Modal -->
-    <div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center hidden" id="fileDetailsModal">
+    <div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center z-20 hidden" id="fileDetailsModal">
         <div class="bg-[#2B2E3C] rounded-lg shadow-lg p-6 flex flex-col justify-between" style="width: 660px; height: 500px;">
             <div class="flex justify-between items-center border-b border-[#364056] pb-3">
                 <h2 id="modalTitle" class="text-2xl font-bold text-white"></h2>
-                <button id="closeModal" class="text-gray-400 hover:text-gray-200 text-2xl select-none">&times;</button>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-200 text-2xl select-none -mt-7">&times;</button>
             </div>
             <div class="mt-4 text-gray-300 overflow-y-auto flex-grow">
                 <div id="fileDetailsContent"></div>
