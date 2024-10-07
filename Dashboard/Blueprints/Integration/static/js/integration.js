@@ -6,8 +6,9 @@ $(document).ready(function () {
   /* Ajuster les hauteurs des sections */
   function adjustHeights() {
     const openCount = openSections.length;
-    const padding = 20; // Padidng hardcodé (à modif)
-    const availableHeight = totalHeight - padding;
+    const padding = 20; // Padding hardcodé (à modif)
+    const additionalSpace = 10;
+    const availableHeight = totalHeight - padding - (openCount * additionalSpace);
 
     const newHeight = openCount === 1 ? availableHeight : availableHeight / openCount;
 
@@ -433,7 +434,19 @@ function updateExpandedIntegrationStats(total, success, impossible) {
     100
   ).toFixed(2);
 
-  const colors = Highcharts.getOptions().colors;
+  const colors = [
+    '#F6B17A', // Pastel Orange
+    '#2D3250', // Dark Navy
+    '#424769', // Medium Navy
+    '#7077A1', // Light Navy
+    '#1C1F33', // Very Dark Navy
+    '#3A3F5C', // Dark Slate Blue
+    '#5A5F8C', // Slate Blue
+    '#E89D6A', // Soft Orange
+    '#2B2F4A', // Deep Navy
+    '#4C5173'  // Muted Blue
+  ];
+  
   const categories = ["Fiches Eval"];
   const data = [
     {
