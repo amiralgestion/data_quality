@@ -100,7 +100,7 @@ CONTRÔLE D’INTÉGRATION
     </div>
     <!-- Error message -->
     <div id="errorMessage" class="absolute inset-0 flex flex-col items-center justify-center hidden">
-        <i class="fa-solid fa-face-disappointed text-[#FFCC4D] text-6xl"></i>
+        <i class="fa-solid fa-face-disappointed text-[#FFCC4D] text-9xl"></i>
         <span class="text-[#AAAAAA] font-bold text-[20px] mt-4" style="font-family: 'Poppins', sans-serif;">Pas d'onglet compil</span>
     </div>
     <div id="excelPreviewContainer" class="absolute top-12 left-2 right-2 bottom-2 w-auto h-auto overflow-auto z-10">
@@ -108,7 +108,7 @@ CONTRÔLE D’INTÉGRATION
     </div>
 </div>
 
-<div id="ExpHighchartContainer" class="absolute top-32 right-56 w-[800px] h-[600px]"></div>    
+<div id="ExpHighchartContainer" class="absolute top-32 right-28 w-[800px] h-[600px]"></div>    
     <!-- Modal -->
     <div class="fixed inset-0 bg-[#364056] bg-opacity-75 flex items-center justify-center z-20 hidden" id="fileDetailsModal">
         <div class="bg-[#2B2E3C] rounded-lg shadow-lg p-6 flex flex-col justify-between" style="width: 660px; height: 500px;">
@@ -138,6 +138,7 @@ CONTRÔLE D’INTÉGRATION
     height: 200px;
     overflow-y: scroll;
     white-space: nowrap;
+    transition: height 0.3s ease;
 }
 
 .keep-scrolling::-webkit-scrollbar {

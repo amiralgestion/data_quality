@@ -1,4 +1,38 @@
 $(document).ready(function () {
+
+  const totalHeight = $(window).height() - 500; // Calcul de la hauteur totale (le 500 = padding hardcodé --)
+  let openSections = []; // Listes des sections ouvertes
+
+  /* Ajuster les hauteurs des sections */
+  function adjustHeights() {
+    const openCount = openSections.length;
+    const padding = 20; // Padidng hardcodé (à modif)
+    const availableHeight = totalHeight - padding;
+
+    const newHeight = openCount === 1 ? availableHeight : availableHeight / openCount;
+
+    openSections.forEach((sectionId) => {
+      $(`#${sectionId}`).css('height', newHeight + 'px');
+    });
+  }
+
+  /* Gérer le clic sur le caret + ajuster */
+  function toggleSection(sectionId) {
+    const index = openSections.indexOf(sectionId);
+    if (index === -1) {
+      openSections.push(sectionId);
+    } else {
+      openSections.splice(index, 1);
+    }
+    adjustHeights();
+  }
+
+  /* Gérer le clic sur le caret */
+  $(".fiches-eval-caret").on("click", function () {
+    const sectionId = $(this).data("id");
+    toggleSection(sectionId);
+  });
+  
   /* Recherche */
   $("#searchBar").on("input", function () {
     const query = $(this).val().toLowerCase();
@@ -221,7 +255,7 @@ function showContextMenu(x, y, fileName) {
   const menuWidth = contextMenu.outerWidth();
   const menuHeight = contextMenu.outerHeight();
 
-  let posX = x - 150; //Hardcodée (pour s'approcher du curseur)
+  let posX = x - 184; //Hardcodée (pour s'approcher du curseur)
   let posY = y - 85; //Hardcodée (pour s'approcher du curseur)
 
   if (posX + menuWidth > $(window).width()) {
