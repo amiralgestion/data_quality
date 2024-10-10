@@ -7,7 +7,7 @@ $(document).ready(function () {
   function adjustHeights() {
     const openCount = openSections.length;
     const padding = 20; // Padding hardcodé (à modif)
-    const additionalSpace = 10;
+    const additionalSpace = 32;
     const availableHeight = totalHeight - padding - (openCount * additionalSpace);
 
     const newHeight = openCount === 1 ? availableHeight : availableHeight / openCount;

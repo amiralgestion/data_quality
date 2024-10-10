@@ -117,6 +117,26 @@
             <i class="fa-sharp fa-light fa-arrows-rotate refresh-icon absolute top-4 right-4 cursor-pointer z-20 keep-visible 
                text-[#25C8A8] text-2xl" onclick="refreshBox(this)"></i>
             <div id="reference-container"></div>
+            <span class="absolute top-16 left-8 text-white font-medium" style="font-family: 'Poppins', sans-serif;">
+                <span id="totalEntries" class="text-4xl"></span>
+                <span class="text-sm">entrées</span>
+            </span>
+
+            <div class="absolute top-40 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+                <span class="w-64">Données non conformes</span>
+                <span id="non-conformes" class="text-white w-16 ml-[-14px] text-right"></span>
+            </div>
+            <div class="absolute top-52 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+                <span class="w-64">Données manquantes</span>
+                <span id="manquantes" class="text-white w-16 ml-[-14px] text-right"></span>
+            </div>
+            <div class="absolute top-64 left-4 flex items-center text-[#AAAAAA]" style="font-family: 'Poppins', sans-serif;">
+                <span class="w-64">Données conformes</span>
+                <span id="conformes" class="text-white w-16 ml-[-14px] text-right"></span>
+            </div>
+
+            <!-- Highcharts Container -->
+            <div id="referenceChart" class="absolute top-28 right-12 w-[250px] h-[250px]"></div>
         </div>
 
         <!-- Analyse -->
@@ -130,6 +150,7 @@
             <i class="fa-sharp fa-light fa-arrows-rotate refresh-icon absolute top-4 right-4 cursor-pointer z-20 keep-visible 
                text-[#25C8A8] text-2xl" onclick="refreshBox(this)"></i>
             <div id="analyse-container"></div>
+
         </div>
     </div>
 </div>
@@ -138,10 +159,18 @@
 {% block customjs %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
+
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+<!-- DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script type="text/javascript" src="{{ url_for('integration.static', filename='js/integration.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('reference.static', filename='js/reference.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('home.static', filename='js/home.js') }}"></script>
 {% endblock %}

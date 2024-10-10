@@ -1,5 +1,91 @@
-            <!-- Title -->
-            <span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer select-none reference z-10"
-                  style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
-                CONTRÔLE DE RÉFÉRENCE
-            </span>
+<!-- Title -->
+<span class="absolute top-4 left-4 text-[#AAAAAA] font-bold text-[20px] cursor-pointer select-none reference z-10"
+  style="font-family: 'Poppins', sans-serif;" onclick="toggleExpand(this)">
+  CONTRÔLE DE RÉFÉRENCE
+</span>
+
+<!-- Nombres d'entrées -->
+<div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white font-bold font-poppins">
+  <span id="totalEntriesExp" class="text-6xl"></span>
+  <span class="text-xl">entrées</span>
+</div>
+
+<!-- Full page -->
+<div class="w-full mt-5 relative flex justify-start items-start" style="height: 80vh;">
+  <div class="entry-messages mt-8 ml-8 w-full max-w-4xl">
+      <!-- Données non conformes -->
+      <div class="flex items-center text-gray-400 mt-12 font-poppins">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="non-conformes" onClick="handleCaretClick(this)"></i>
+          <span class="w-64 text-[#D32F2F] text-xl font-semibold">Données non conformes</span>
+          <span id="nonconformCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
+      </div>
+
+      <div class="ml-12 mt-4 hidden" id="nonConformDetails" data-id="non-conformes">
+        <div class="flex items-center">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 datadetail-caret" data-id="nonConformFilesList" onClick="handleRefGA(this)"></i>
+          <span class="w-64 text-white font-semibold">ref_gerants_analystes</span>
+        </div>
+        <div id="nonConformFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+            <!-- File rows will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Données manquantes -->
+      <div class="flex items-center text-gray-400 mt-12 font-poppins">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="manquantes" onClick="handleCaretClick(this)"></i>
+          <span class="w-64 text-[#F57C00] text-xl font-semibold">Données manquantes</span>
+          <span id="manquantesCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
+      </div>
+
+      <div class="ml-12 mt-4 hidden" id="missingDetails" data-id="manquantes">
+        <div class="flex items-center">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 datadetail-caret" data-id="missingFilesList" onClick="handleRefGA(this)"></i>
+          <span class="w-64 text-white font-semibold">ref_gerants_analystes</span>
+        </div>
+        <div id="missingFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+            <!-- File rows will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Données conformes -->
+      <div class="flex items-center text-gray-400 mt-12 font-poppins">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400" data-id="conformes" onClick="handleCaretClick(this)"></i>
+          <span class="w-64 text-[#388E3C] text-xl font-semibold">Données conformes</span>
+          <span id="conformCountExp" class="text-white w-16 -ml-3.5 text-right"></span>
+      </div>
+
+      <div class="ml-12 mt-4 hidden" id="conformDetails" data-id="conformes">
+        <div class="flex items-center">
+          <i class="fa-sharp fa-solid fa-caret-down cursor-pointer transform -rotate-90 mr-2 text-gray-400 datadetail-caret" data-id="conformFilesList" onClick="handleRefGA(this)"></i>
+          <span class="w-64 text-white font-semibold">ref_gerants_analystes</span>
+        </div>
+        <div id="conformFilesList" class="ml-12 mt-2 text-white whitespace-nowrap w-96 hidden keep-scrolling">
+            <!-- File rows will be inserted here -->
+        </div>
+      </div>
+  </div>
+    <!-- Form Container -->
+    <div id="formContainer" class="absolute top-36 right-24 w-[800px] h-[600px] rounded-lg overflow-hidden"></div>
+
+</div>
+
+<style>
+  .keep-scrolling {
+    width: 400px;
+    height: 200px;
+    overflow-y: scroll;
+    white-space: nowrap;
+    transition: height 0.3s ease;
+}
+
+.keep-scrolling::-webkit-scrollbar {
+    display: none;
+}
+
+.keep-scrolling {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>
+
+<script type="text/javascript" src="{{ url_for('reference.static', filename='js/reference.js') }}"></script>
